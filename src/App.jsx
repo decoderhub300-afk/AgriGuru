@@ -272,11 +272,11 @@ export default function AgriGuruApp() {
   setIsAiLoading(true);
 
   try {
-    // 🔑 1. REPLACE THIS WITH YOUR ACTUAL GOOGLE AI STUDIO API KEY
+    // 🔑 1. PASTE YOUR REAL API KEY HERE (Get it from Google AI Studio)
     const apiKey = "AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ"; 
     
-    // 🛠️ 2. Use a stable, reliable model name
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ}`;
+    // 🛠️ 2. Use the stable, working model name
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [
@@ -286,10 +286,9 @@ export default function AgriGuruApp() {
         })),
         { role: 'user', parts: [{ text: query }] }
       ],
-      // 🎯 3. Tightened system prompt to prioritize agricultural relevance
       systemInstruction: {
         parts: [{
-          text: "You are AgriGuru AI Advisor, an expert smart farming and agriculture assistant. Your primary focus is to provide accurate, practical, and detailed advice on crop management, pest diagnostics, soil health, fertilizers, and weather advisories. Always prioritize agricultural relevance. If a question is completely unrelated to farming, agriculture, or rural livelihoods, politely steer the conversation back to agricultural topics. Provide clear, structured responses. Do not use markdown asterisks (*) or bullet star symbols in your response."
+          text: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
         }]
       }
     };
@@ -300,7 +299,7 @@ export default function AgriGuruApp() {
       body: JSON.stringify(payload)
     });
 
-    // ⚠️ 4. Proper error handling: catch API rejections (e.g., invalid key) before parsing
+    // ⚠️ 3. Catch API errors BEFORE trying to read the response
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Gemini API Error:", errorData);
@@ -309,15 +308,14 @@ export default function AgriGuruApp() {
 
     const result = await response.json();
 
-    // Extract text safely, with a meaningful fallback if the API returns no candidates
+    // 4. Safely extract the text
     let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!rawAiText) {
-      console.warn("No candidates in API response:", result);
-      rawAiText = `I'm sorry, I couldn't generate a specific answer for "${query}". Please try rephrasing your question or ask about crop management, soil health, or farming practices.`;
+      rawAiText = "I'm sorry, I couldn't process that request. Please try asking a specific farming or agriculture question.";
     }
 
-    // Remove all asterisks from the AI response as requested
+    // Remove asterisks
     const aiText = rawAiText.replace(/\*/g, '');
 
     const aiMsg = {
@@ -330,10 +328,9 @@ export default function AgriGuruApp() {
   } catch (err) {
     console.error("Chat Error:", err);
     
-    // Show the actual error to the user (or a friendly version of it) during development
     const errorMessage = err.message.includes("API key") 
-      ? "AgriGuru AI is currently unavailable: Invalid or missing API key. Please contact the administrator."
-      : `AgriGuru AI encountered an error processing "${query}". Please check your internet connection and try again.`;
+      ? "AgriGuru AI is currently unavailable: Missing or invalid API key. Please contact the administrator."
+      : `AgriGuru AI encountered an error. Please check your connection and try again.`;
 
     setChatMessages(prev => [...prev, { 
       role: 'assistant', 
@@ -344,7 +341,6 @@ export default function AgriGuruApp() {
     setIsAiLoading(false);
   }
 };
-
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
