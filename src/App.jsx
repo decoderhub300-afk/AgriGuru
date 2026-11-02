@@ -258,89 +258,90 @@ export default function AgriGuruApp() {
   ];
 
   const handleSendMessage = async (textToSend) => {
-  const query = textToSend || chatInput;
-  if (!query.trim() || isAiLoading) return;
+    const query = textToSend || chatInput;
+    if (!query.trim() || isAiLoading) return;
 
-  const userMsg = {
-    role: 'user',
-    text: query,
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  };
-
-  setChatMessages(prev => [...prev, userMsg]);
-  if (!textToSend) setChatInput('');
-  setIsAiLoading(true);
-
-  try {
-    // 🔑 1. PASTE YOUR REAL API KEY HERE (Get it from Google AI Studio)
-    // Paste your EXACT key here with the AQ. prefix:
-  const apiKey = "AQ.Ab8RN6L7i7ftujzokTuISaTR3gfHucBr0CjZceuFB6jobprLww";
-  // Keep this line exactly as it is:
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-    const payload = {
-      contents: [
-        ...chatMessages.map(m => ({
-          role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.text }]
-        })),
-        { role: 'user', parts: [{ text: query }] }
-      ],
-      systemInstruction: {
-        parts: [{
-          text: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
-        }]
-      }
-    };
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    // ⚠️ 3. Catch API errors BEFORE trying to read the response
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("Gemini API Error:", errorData);
-      throw new Error(errorData.error?.message || "API request failed");
-    }
-
-    const result = await response.json();
-
-    // 4. Safely extract the text
-    let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!rawAiText) {
-      rawAiText = "I'm sorry, I couldn't process that request. Please try asking a specific farming or agriculture question.";
-    }
-
-    // Remove asterisks
-    const aiText = rawAiText.replace(/\*/g, '');
-
-    const aiMsg = {
-      role: 'assistant',
-      text: aiText,
+    const userMsg = {
+      role: 'user',
+      text: query,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setChatMessages(prev => [...prev, aiMsg]);
-  } catch (err) {
-    console.error("Chat Error:", err);
-    
-    const errorMessage = err.message.includes("API key") 
-      ? "AgriGuru AI is currently unavailable: Missing or invalid API key. Please contact the administrator."
-      : `AgriGuru AI encountered an error. Please check your connection and try again.`;
+    setChatMessages(prev => [...prev, userMsg]);
+    if (!textToSend) setChatInput('');
+    setIsAiLoading(true);
 
-    setChatMessages(prev => [...prev, { 
-      role: 'assistant', 
-      text: errorMessage, 
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-    }]);
-  } finally {
-    setIsAiLoading(false);
-  }
-};
+    try {
+      // 🔑 UPDATED API KEY WITH CORRECT SYNTAX
+      const apiKey = "AQ.Ab8RN6JV_dlJiIPEru5e2Ujf7eZKG70j0plpzwgIrQWtGUZR2Q";
+      
+      // Keep this line exactly as it is:
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+      const payload = {
+        contents: [
+          ...chatMessages.map(m => ({
+            role: m.role === 'user' ? 'user' : 'model',
+            parts: [{ text: m.text }]
+          })),
+          { role: 'user', parts: [{ text: query }] }
+        ],
+        systemInstruction: {
+          parts: [{
+            text: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
+          }]
+        }
+      };
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      // ⚠️ Catch API errors BEFORE trying to read the response
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Gemini API Error:", errorData);
+        throw new Error(errorData.error?.message || "API request failed");
+      }
+
+      const result = await response.json();
+
+      // Safely extract the text
+      let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!rawAiText) {
+        rawAiText = "I'm sorry, I couldn't process that request. Please try asking a specific farming or agriculture question.";
+      }
+
+      // Remove asterisks
+      const aiText = rawAiText.replace(/\*/g, '');
+
+      const aiMsg = {
+        role: 'assistant',
+        text: aiText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+
+      setChatMessages(prev => [...prev, aiMsg]);
+    } catch (err) {
+      console.error("Chat Error:", err);
+      
+      const errorMessage = err.message.includes("API key") 
+        ? "AgriGuru AI is currently unavailable: Missing or invalid API key. Please contact the administrator."
+        : `AgriGuru AI encountered an error. Please check your connection and try again.`;
+
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        text: errorMessage, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      }]);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
