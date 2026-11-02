@@ -273,10 +273,11 @@ export default function AgriGuruApp() {
 
   try {
     // 🔑 1. PASTE YOUR REAL API KEY HERE (Get it from Google AI Studio)
-    const apiKey = "AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ"; 
-    
-    // 🛠️ 2. Use the stable, working model name
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Paste your EXACT key here with the AQ. prefix:
+const apiKey = "AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ";
+
+// Keep this line exactly as it is:
+const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [
