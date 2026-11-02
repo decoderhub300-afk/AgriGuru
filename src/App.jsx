@@ -258,62 +258,92 @@ export default function AgriGuruApp() {
   ];
 
   const handleSendMessage = async (textToSend) => {
-    const query = textToSend || chatInput;
-    if (!query.trim() || isAiLoading) return;
+  const query = textToSend || chatInput;
+  if (!query.trim() || isAiLoading) return;
 
-    const userMsg = {
-      role: 'user',
-      text: query,
+  const userMsg = {
+    role: 'user',
+    text: query,
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  setChatMessages(prev => [...prev, userMsg]);
+  if (!textToSend) setChatInput('');
+  setIsAiLoading(true);
+
+  try {
+    // 🔑 1. REPLACE THIS WITH YOUR ACTUAL GOOGLE AI STUDIO API KEY
+    const apiKey = "AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ"; 
+    
+    // 🛠️ 2. Use a stable, reliable model name
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${AQ.Ab8RN6ILlmrqN5-9fyGwjrrujLagGvzso5NFjMaGwB386xEwdQ}`;
+
+    const payload = {
+      contents: [
+        ...chatMessages.map(m => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.text }]
+        })),
+        { role: 'user', parts: [{ text: query }] }
+      ],
+      // 🎯 3. Tightened system prompt to prioritize agricultural relevance
+      systemInstruction: {
+        parts: [{
+          text: "You are AgriGuru AI Advisor, an expert smart farming and agriculture assistant. Your primary focus is to provide accurate, practical, and detailed advice on crop management, pest diagnostics, soil health, fertilizers, and weather advisories. Always prioritize agricultural relevance. If a question is completely unrelated to farming, agriculture, or rural livelihoods, politely steer the conversation back to agricultural topics. Provide clear, structured responses. Do not use markdown asterisks (*) or bullet star symbols in your response."
+        }]
+      }
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // ⚠️ 4. Proper error handling: catch API rejections (e.g., invalid key) before parsing
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Gemini API Error:", errorData);
+      throw new Error(errorData.error?.message || "API request failed");
+    }
+
+    const result = await response.json();
+
+    // Extract text safely, with a meaningful fallback if the API returns no candidates
+    let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!rawAiText) {
+      console.warn("No candidates in API response:", result);
+      rawAiText = `I'm sorry, I couldn't generate a specific answer for "${query}". Please try rephrasing your question or ask about crop management, soil health, or farming practices.`;
+    }
+
+    // Remove all asterisks from the AI response as requested
+    const aiText = rawAiText.replace(/\*/g, '');
+
+    const aiMsg = {
+      role: 'assistant',
+      text: aiText,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setChatMessages(prev => [...prev, userMsg]);
-    if (!textToSend) setChatInput('');
-    setIsAiLoading(true);
+    setChatMessages(prev => [...prev, aiMsg]);
+  } catch (err) {
+    console.error("Chat Error:", err);
+    
+    // Show the actual error to the user (or a friendly version of it) during development
+    const errorMessage = err.message.includes("API key") 
+      ? "AgriGuru AI is currently unavailable: Invalid or missing API key. Please contact the administrator."
+      : `AgriGuru AI encountered an error processing "${query}". Please check your internet connection and try again.`;
 
-    try {
-      const payload = {
-        contents: [
-          ...chatMessages.map(m => ({
-            role: m.role === 'user' ? 'user' : 'model',
-            parts: [{ text: m.text }]
-          })),
-          { role: 'user', parts: [{ text: query }] }
-        ],
-        systemInstruction: {
-          parts: [{ text: "You are AgriGuru AI Advisor, an advanced smart farming assistant and versatile general knowledge expert. You answer any question from agriculture, crop protection, pest diagnostics, soil health, weather science, to general knowledge, history, geography, and science with accurate, engaging, structured, and detailed responses. Do not use markdown asterisks or bullet star symbols in your response." }]
-        }
-      };
-
-      const apiKey = "";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
-      
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      
-      const result = await response.json();
-      let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text || `Here is detailed information regarding "${query}": AgriGuru AI provides comprehensive insights across agricultural science, crop planning, and general inquiries.`;
-      
-      // Remove all asterisks from the AI response
-      const aiText = rawAiText.replace(/\*/g, '');
-
-      const aiMsg = {
-        role: 'assistant',
-        text: aiText,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setChatMessages(prev => [...prev, aiMsg]);
-    } catch (err) {
-      const fallbackText = `AgriGuru AI Advisor: Regarding "${query}", this topic involves key principles connecting theory and practical application. Whether in agriculture, science, or general knowledge, structured inquiry provides the best insights!`;
-      setChatMessages(prev => [...prev, { role: 'assistant', text: fallbackText.replace(/\*/g, ''), time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
+    setChatMessages(prev => [...prev, { 
+      role: 'assistant', 
+      text: errorMessage, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    }]);
+  } finally {
+    setIsAiLoading(false);
+  }
+};
 
   const txt = t[lang];
 
