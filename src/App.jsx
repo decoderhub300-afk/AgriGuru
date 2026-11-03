@@ -257,7 +257,7 @@ export default function AgriGuruApp() {
     "Explain photosynthesis in simple terms"
   ];
 
-    const handleSendMessage = async (textToSend) => {
+      const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -272,76 +272,51 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      // ⚠️ REPLACE THIS WITH YOUR *NEW* OPENROUTER API KEY
-      // For production, use: process.env.REACT_APP_OPENROUTER_KEY or import.meta.env.VITE_OPENROUTER_KEY
-      const apiKey = "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"; 
+      // 🚀 EMERGENCY NO-KEY SOLUTION: Pollinations.ai 
+      // Free, No API Key, No Billing, No GitHub Revocation!
       
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'HTTP-Referer': window.location.href, // Required by OpenRouter
-          'X-Title': 'AgriGuru AI',             // Required by OpenRouter
-          'Content-Type': 'application/json'
-        },
+      const systemPrompt = "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear, structured, and concise. Do not use markdown asterisks (*) in your response.";
+      
+      const messages = [
+        { role: "system", content: systemPrompt },
+        ...chatMessages.map(m => ({ 
+          role: m.role === 'user' ? 'user' : 'assistant', 
+          content: m.text 
+        })),
+        { role: "user", content: query }
+      ];
+
+      const response = await fetch("https://text.pollinations.ai/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // This model is 100% free and requires no billing
-          model: "meta-llama/llama-3-8b-instruct:free",
-          messages: [
-            {
-              role: "system",
-              content: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
-            },
-            // Map previous chat history to OpenRouter format
-            ...chatMessages.map(m => ({
-              role: m.role === 'user' ? 'user' : 'assistant', // OpenRouter uses 'assistant', not 'model'
-              content: m.text
-            })),
-            {
-              role: "user",
-              content: query
-            }
-          ]
+          messages: messages,
+          model: "openai", // Uses a fast, capable free model
+          seed: 42
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("OpenRouter API Error:", errorData);
-        throw new Error(errorData.error?.message || "API request failed");
-      }
-
-      const result = await response.json();
+      if (!response.ok) throw new Error("AI service failed");
       
-      // Extract text from OpenRouter response format
-      let rawAiText = result.choices?.[0]?.message?.content;
-      
-      if (!rawAiText) {
-        rawAiText = "I'm sorry, I couldn't process that request. Please try asking a specific farming or agriculture question.";
-      }
-
-      // Remove asterisks (keeping your original formatting preference)
-      const aiText = rawAiText.replace(/\*/g, '');
+      // Pollinations returns raw text, not a JSON object
+      const rawAiText = await response.text();
+      const cleanText = rawAiText.replace(/\*/g, ''); // Keep your asterisk removal
 
       const aiMsg = {
         role: 'assistant',
-        text: aiText,
+        text: cleanText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
 
       setChatMessages(prev => [...prev, aiMsg]);
     } catch (err) {
       console.error("Chat Error:", err);
-      
-      const errorMessage = err.message.includes("API key") 
-        ? "AgriGuru AI is currently unavailable: Missing or invalid API key. Please contact the administrator."
-        : `AgriGuru AI encountered an error. Please check your connection and try again.`;
-
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        text: errorMessage, 
+        text: "AgriGuru AI is momentarily unavailable. Please try again.", 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
       }]);
+3
     } finally {
       setIsAiLoading(false);
     }
