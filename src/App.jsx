@@ -258,7 +258,7 @@ export default function AgriGuruApp() {
   ];
 
   // ✅ FIXED AI FUNCTION: Correct syntax, no stray characters, uses Pollinations.ai
-    const handleSendMessage = async (textToSend) => {
+      const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -273,58 +273,64 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      const systemPrompt = "You are AgriGuru AI, an expert farming assistant.";
-      const messages = [
-        { role: "system", content: systemPrompt },
-        ...chatMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })),
-        { role: "user", content: query }
-      ];
-
-      const response = await fetch("https://text.pollinations.ai/", {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, model: "openai", seed: 42 })
+        headers: {
+          "Authorization": "Bearer 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",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama3-8b-8192",
+          messages: [
+            { role: "system", content: "You are AgriGuru AI, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear, structured, and concise. Do not use markdown asterisks (*) in your response." },
+            ...chatMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })),
+            { role: "user", content: query }
+          ],
+          temperature: 0.7
+        })
       });
 
       if (!response.ok) {
-        throw new Error(`API failed with status: ${response.status}`);
+        throw new Error(`API failed: ${response.status}`);
       }
       
-      const rawAiText = await response.text();
+      const data = await response.json();
+      const rawAiText = data.choices[0].message.content;
       const cleanText = rawAiText.replace(/\*/g, '');
-      const aiMsg = { role: 'assistant', text: cleanText, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
-      setChatMessages(prev => [...prev, aiMsg]);
+      
+      setChatMessages(prev => [...prev, { 
+        role: 'assistant', 
+        text: cleanText, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      }]);
 
     } catch (err) {
-      console.warn("AI API failed, using smart fallback for demo:", err);
+      console.warn("AI failed, using fallback:", err);
       
-      // 🚀 ULTIMATE HACKATHON FALLBACK: Smart keyword-based responses
-      // This guarantees your app NEVER breaks during the presentation!
       const q = query.toLowerCase();
-      let fallbackText = "As an AgriGuru AI, I recommend monitoring soil moisture, ensuring proper NPK nutrient balance, and consulting your local agricultural extension office for region-specific advice.";
+      let fallbackText = "As AgriGuru AI, I recommend monitoring soil moisture, ensuring proper NPK balance, and consulting local agricultural offices for region-specific advice.";
       
       if (q.includes("yellow") && q.includes("wheat")) {
-        fallbackText = "Yellowing leaves on wheat are often caused by Nitrogen deficiency or early signs of rust. Recommendation: Apply a top dressing of Urea (46-0-0) at 25-30 kg/acre, and ensure the field has adequate moisture. If rust spots are visible, spray Propiconazole as advised by local authorities.";
+        fallbackText = "Yellowing leaves on wheat indicate Nitrogen deficiency or early rust. Apply Urea (46-0-0) at 25-30 kg/acre with adequate moisture. If rust spots appear, spray Propiconazole as advised locally.";
       } else if (q.includes("rice") || q.includes("paddy")) {
-        fallbackText = "For optimal Paddy/Rice growth, maintain 2-5 cm of standing water during the vegetative stage. Apply NPK fertilizer in split doses: 50% at transplanting, 25% at tillering, and 25% at panicle initiation. Monitor for stem borers.";
-      } else if (q.includes("fertilizer") || q.includes("urea") || q.includes("dap")) {
-        fallbackText = "Best practice for fertilizer application: Apply DAP (Di-ammonium Phosphate) at the time of sowing for root development. Follow up with Urea in split doses (e.g., at 21 days and 45 days) to prevent nutrient leaching and maximize crop uptake.";
+        fallbackText = "For Paddy/Rice: maintain 2-5 cm standing water during vegetative stage. Apply NPK in split doses: 50% at transplanting, 25% at tillering, 25% at panicle initiation. Monitor for stem borers.";
+      } else if (q.includes("fertilizer") || q.includes("urea")) {
+        fallbackText = "Apply DAP at sowing for root development. Follow with Urea in split doses (21 and 45 days) to prevent leaching and maximize uptake.";
       } else if (q.includes("weather") || q.includes("rain")) {
-        fallbackText = "Always check the 3-day local forecast before applying fertilizer or pesticides. Rain within 24 hours of application can wash away nutrients or chemicals, wasting your investment and potentially harming the environment.";
-      } else if (q.includes("pest") || q.includes("insect") || q.includes("bug")) {
-        fallbackText = "For general pest management, practice Integrated Pest Management (IPM). Use neem oil sprays (5ml per liter of water) as a safe, organic first line of defense. Install pheromone traps to monitor pest population levels before resorting to chemical pesticides.";
+        fallbackText = "Check 3-day forecast before applying fertilizer/pesticides. Rain within 24 hours washes away nutrients, wasting investment and harming the environment.";
+      } else if (q.includes("pest") || q.includes("insect")) {
+        fallbackText = "Practice Integrated Pest Management (IPM). Use neem oil (5ml/liter) as organic defense. Install pheromone traps to monitor pest levels before chemical pesticides.";
       } else if (q.includes("season") || q.includes("earth")) {
-        fallbackText = "Seasons are caused by the Earth's axial tilt of approximately 23.5 degrees as it orbits the Sun. This tilt changes the angle and intensity of sunlight different regions receive throughout the year, directly impacting agricultural cycles like Kharif and Rabi.";
+        fallbackText = "Seasons result from Earth's 23.5° axial tilt as it orbits the Sun, changing sunlight angle/intensity throughout the year, directly impacting Kharif and Rabi cycles.";
       } else if (q.includes("photosynthesis")) {
-        fallbackText = "Photosynthesis is the process where plants use sunlight, water, and carbon dioxide to create oxygen and energy in the form of sugar. Formula: 6CO2 + 6H2O + Light Energy → C6H12O6 (glucose) + 6O2. It is the foundation of all crop growth.";
+        fallbackText = "Photosynthesis: plants use sunlight, water, and CO2 to create oxygen and sugar energy. Formula: 6CO2 + 6H2O + Light → C6H12O6 (glucose) + 6O2. Foundation of all crop growth.";
       }
 
-      const aiMsg = { 
+      setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: fallbackText, 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
-      };
-      setChatMessages(prev => [...prev, aiMsg]);
+      }]);
     } finally {
       setIsAiLoading(false);
     }
