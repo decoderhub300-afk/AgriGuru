@@ -257,7 +257,7 @@ export default function AgriGuruApp() {
     "Explain photosynthesis in simple terms"
   ];
 
-  const handleSendMessage = async (textToSend) => {
+    const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -272,50 +272,55 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      // 🔑 UPDATED API KEY WITH CORRECT SYNTAX
-      const apiKey = "AQ.Ab8RN6JV_dlJiIPEru5e2Ujf7eZKG70j0plpzwgIrQWtGUZR2Q";
+      // ⚠️ REPLACE THIS WITH YOUR *NEW* OPENROUTER API KEY
+      // For production, use: process.env.REACT_APP_OPENROUTER_KEY or import.meta.env.VITE_OPENROUTER_KEY
+      const apiKey = "sk-or-v1-YOUR_NEW_KEY_HERE"; 
       
-      // Keep this line exactly as it is:
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
-      const payload = {
-        contents: [
-          ...chatMessages.map(m => ({
-            role: m.role === 'user' ? 'user' : 'model',
-            parts: [{ text: m.text }]
-          })),
-          { role: 'user', parts: [{ text: query }] }
-        ],
-        systemInstruction: {
-          parts: [{
-            text: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
-          }]
-        }
-      };
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'HTTP-Referer': window.location.href, // Required by OpenRouter
+          'X-Title': 'AgriGuru AI',             // Required by OpenRouter
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          // This model is 100% free and requires no billing
+          model: "meta-llama/llama-3-8b-instruct:free",
+          messages: [
+            {
+              role: "system",
+              content: "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response."
+            },
+            // Map previous chat history to OpenRouter format
+            ...chatMessages.map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant', // OpenRouter uses 'assistant', not 'model'
+              content: m.text
+            })),
+            {
+              role: "user",
+              content: query
+            }
+          ]
+        })
       });
 
-      // ⚠️ Catch API errors BEFORE trying to read the response
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Gemini API Error:", errorData);
+        console.error("OpenRouter API Error:", errorData);
         throw new Error(errorData.error?.message || "API request failed");
       }
 
       const result = await response.json();
-
-      // Safely extract the text
-      let rawAiText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      // Extract text from OpenRouter response format
+      let rawAiText = result.choices?.[0]?.message?.content;
       
       if (!rawAiText) {
         rawAiText = "I'm sorry, I couldn't process that request. Please try asking a specific farming or agriculture question.";
       }
 
-      // Remove asterisks
+      // Remove asterisks (keeping your original formatting preference)
       const aiText = rawAiText.replace(/\*/g, '');
 
       const aiMsg = {
