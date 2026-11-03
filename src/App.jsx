@@ -242,7 +242,7 @@ export default function AgriGuruApp() {
   const [chatMessages, setChatMessages] = useState([
     { 
       role: 'assistant', 
-      text: 'Namaste! I am your AgriGuru AI Advisor, powered by Gemini. You can ask me anything from crop management and weather advisories to general knowledge, science, history, and geography!',
+      text: 'Namaste! I am your AgriGuru AI Advisor. You can ask me anything from crop management and weather advisories to general knowledge, science, history, and geography!',
       time: 'Just now'
     }
   ]);
@@ -257,7 +257,8 @@ export default function AgriGuruApp() {
     "Explain photosynthesis in simple terms"
   ];
 
-      const handleSendMessage = async (textToSend) => {
+  // ✅ FIXED AI FUNCTION: Correct syntax, no stray characters, uses Pollinations.ai
+  const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -272,9 +273,6 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      // 🚀 EMERGENCY NO-KEY SOLUTION: Pollinations.ai 
-      // Free, No API Key, No Billing, No GitHub Revocation!
-      
       const systemPrompt = "You are AgriGuru AI Advisor, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear, structured, and concise. Do not use markdown asterisks (*) in your response.";
       
       const messages = [
@@ -291,16 +289,17 @@ export default function AgriGuruApp() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: messages,
-          model: "openai", // Uses a fast, capable free model
+          model: "openai",
           seed: 42
         })
       });
 
-      if (!response.ok) throw new Error("AI service failed");
+      if (!response.ok) {
+        throw new Error(`AI service failed with status: ${response.status}`);
+      }
       
-      // Pollinations returns raw text, not a JSON object
       const rawAiText = await response.text();
-      const cleanText = rawAiText.replace(/\*/g, ''); // Keep your asterisk removal
+      const cleanText = rawAiText.replace(/\*/g, ''); 
 
       const aiMsg = {
         role: 'assistant',
@@ -316,7 +315,6 @@ export default function AgriGuruApp() {
         text: "AgriGuru AI is momentarily unavailable. Please try again.", 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
       }]);
-3
     } finally {
       setIsAiLoading(false);
     }
