@@ -274,8 +274,7 @@ export default function AgriGuruApp() {
     try {
       // ⚠️ REPLACE THIS WITH YOUR *NEW* OPENROUTER API KEY
       // For production, use: process.env.REACT_APP_OPENROUTER_KEY or import.meta.env.VITE_OPENROUTER_KEY
-      const apiKey = "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.
-        "; 
+      const apiKey = "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"; 
       
       const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: 'POST',
