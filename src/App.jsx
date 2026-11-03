@@ -258,7 +258,7 @@ export default function AgriGuruApp() {
   ];
 
   // ✅ FIXED AI FUNCTION: Correct syntax, no stray characters, uses Pollinations.ai
-        const handleSendMessage = async (textToSend) => {
+          const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -280,7 +280,8 @@ export default function AgriGuruApp() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama3-8b-8192",
+          // ✅ UPDATED TO THE CURRENT ACTIVE GROQ MODEL
+          model: "llama-3.1-8b-instant", 
           messages: [
             { 
               role: "system", 
@@ -297,7 +298,8 @@ export default function AgriGuruApp() {
       });
 
       if (!response.ok) {
-        throw new Error(`API failed: ${response.status}`);
+        const errData = await response.json();
+        throw new Error(errData.error?.message || `API failed: ${response.status}`);
       }
       
       const data = await response.json();
@@ -315,7 +317,6 @@ export default function AgriGuruApp() {
     } catch (err) {
       console.error("AI Chat Error:", err);
       
-      // Pure fallback: Just a simple error message, no hardcoded answers
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: "AgriGuru AI is temporarily unavailable. Please check your connection and try again.", 
