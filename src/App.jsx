@@ -258,7 +258,7 @@ export default function AgriGuruApp() {
   ];
 
   // ✅ FIXED AI FUNCTION: Correct syntax, no stray characters, uses Pollinations.ai
-      const handleSendMessage = async (textToSend) => {
+        const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -282,8 +282,14 @@ export default function AgriGuruApp() {
         body: JSON.stringify({
           model: "llama3-8b-8192",
           messages: [
-            { role: "system", content: "You are AgriGuru AI, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear, structured, and concise. Do not use markdown asterisks (*) in your response." },
-            ...chatMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })),
+            { 
+              role: "system", 
+              content: "You are AgriGuru AI, an expert smart farming assistant. Provide accurate, practical, and detailed advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response." 
+            },
+            ...chatMessages.map(m => ({ 
+              role: m.role === 'user' ? 'user' : 'assistant', 
+              content: m.text 
+            })),
             { role: "user", content: query }
           ],
           temperature: 0.7
@@ -296,6 +302,8 @@ export default function AgriGuruApp() {
       
       const data = await response.json();
       const rawAiText = data.choices[0].message.content;
+      
+      // Remove asterisks as requested
       const cleanText = rawAiText.replace(/\*/g, '');
       
       setChatMessages(prev => [...prev, { 
@@ -305,30 +313,12 @@ export default function AgriGuruApp() {
       }]);
 
     } catch (err) {
-      console.warn("AI failed, using fallback:", err);
+      console.error("AI Chat Error:", err);
       
-      const q = query.toLowerCase();
-      let fallbackText = "As AgriGuru AI, I recommend monitoring soil moisture, ensuring proper NPK balance, and consulting local agricultural offices for region-specific advice.";
-      
-      if (q.includes("yellow") && q.includes("wheat")) {
-        fallbackText = "Yellowing leaves on wheat indicate Nitrogen deficiency or early rust. Apply Urea (46-0-0) at 25-30 kg/acre with adequate moisture. If rust spots appear, spray Propiconazole as advised locally.";
-      } else if (q.includes("rice") || q.includes("paddy")) {
-        fallbackText = "For Paddy/Rice: maintain 2-5 cm standing water during vegetative stage. Apply NPK in split doses: 50% at transplanting, 25% at tillering, 25% at panicle initiation. Monitor for stem borers.";
-      } else if (q.includes("fertilizer") || q.includes("urea")) {
-        fallbackText = "Apply DAP at sowing for root development. Follow with Urea in split doses (21 and 45 days) to prevent leaching and maximize uptake.";
-      } else if (q.includes("weather") || q.includes("rain")) {
-        fallbackText = "Check 3-day forecast before applying fertilizer/pesticides. Rain within 24 hours washes away nutrients, wasting investment and harming the environment.";
-      } else if (q.includes("pest") || q.includes("insect")) {
-        fallbackText = "Practice Integrated Pest Management (IPM). Use neem oil (5ml/liter) as organic defense. Install pheromone traps to monitor pest levels before chemical pesticides.";
-      } else if (q.includes("season") || q.includes("earth")) {
-        fallbackText = "Seasons result from Earth's 23.5° axial tilt as it orbits the Sun, changing sunlight angle/intensity throughout the year, directly impacting Kharif and Rabi cycles.";
-      } else if (q.includes("photosynthesis")) {
-        fallbackText = "Photosynthesis: plants use sunlight, water, and CO2 to create oxygen and sugar energy. Formula: 6CO2 + 6H2O + Light → C6H12O6 (glucose) + 6O2. Foundation of all crop growth.";
-      }
-
+      // Pure fallback: Just a simple error message, no hardcoded answers
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        text: fallbackText, 
+        text: "AgriGuru AI is temporarily unavailable. Please check your connection and try again.", 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
       }]);
     } finally {
