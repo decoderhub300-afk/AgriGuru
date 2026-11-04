@@ -214,11 +214,16 @@ export default function AgriGuruApp() {
     }
   };
 
-  const handleSendMessage = async (textToSend) => {
+    const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
-    const userMsg = { role: 'user', text: query, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) };
+    const userMsg = { 
+      role: 'user', 
+      text: query, 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+    };
+    
     setChatMessages(prev => [...prev, userMsg]);
     if (!textToSend) setChatInput('');
     setIsAiLoading(true);
@@ -231,26 +236,38 @@ export default function AgriGuruApp() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
+          // ✅ UPDATED TO GROQ'S MOST RELIABLE, ACTIVE MODEL
+          model: "llama-3.3-70b-versatile", 
           messages: [
-            { role: "system", content: "You are AgriGuru AI, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response." },
-            ...chatMessages.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text })),
+            { 
+              role: "system", 
+              content: "You are AgriGuru AI, an expert smart farming assistant. Provide accurate, practical advice on crop management, pest diagnostics, soil health, and weather. Keep responses clear and structured. Do not use markdown asterisks (*) in your response." 
+            },
+            ...chatMessages.map(m => ({ 
+              role: m.role === 'user' ? 'user' : 'assistant', 
+              content: m.text 
+            })),
             { role: "user", content: query }
           ],
           temperature: 0.7
         })
       });
 
-      if (!response.ok) throw new Error(`API failed: ${response.status}`);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error?.message || `API failed: ${response.status}`);
+      }
       
       const data = await response.json();
-      const cleanText = data.choices[0].message.content.replace(/\*/g, '');
+      const rawAiText = data.choices[0].message.content;
+      const cleanText = rawAiText.replace(/\*/g, '');
       
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: cleanText, 
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
       }]);
+
     } catch (err) {
       console.error("AI Chat Error:", err);
       setChatMessages(prev => [...prev, { 
@@ -262,7 +279,6 @@ export default function AgriGuruApp() {
       setIsAiLoading(false);
     }
   };
-
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
