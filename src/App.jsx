@@ -27,6 +27,21 @@ const btnGhost = "text-stone-600 font-semibold rounded-xl hover:bg-stone-100 tra
 const emptyBox = "bg-white/70 p-10 rounded-3xl border-2 border-dashed border-emerald-300/70 text-center";
 const lift = "transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-900/10";
 
+const CROP_THEMES = [
+  { grad: 'from-emerald-500 to-lime-400', soft: 'bg-emerald-50', border: 'border-emerald-200' },
+  { grad: 'from-amber-500 to-yellow-300', soft: 'bg-amber-50', border: 'border-amber-200' },
+  { grad: 'from-sky-500 to-cyan-300', soft: 'bg-sky-50', border: 'border-sky-200' },
+  { grad: 'from-rose-500 to-orange-300', soft: 'bg-rose-50', border: 'border-rose-200' },
+  { grad: 'from-violet-500 to-fuchsia-300', soft: 'bg-violet-50', border: 'border-violet-200' },
+  { grad: 'from-teal-500 to-emerald-300', soft: 'bg-teal-50', border: 'border-teal-200' },
+];
+const cropEmoji = (name = '') => {
+  const n = name.toLowerCase();
+  const map = [[/wheat|gehu|गेहूं/, '🌾'], [/rice|paddy|dhan|धान|चावल/, '🌾'], [/maize|corn|makka|मक्का/, '🌽'], [/tomato|टमाटर/, '🍅'], [/potato|aloo|आलू/, '🥔'], [/onion|pyaz|प्याज/, '🧅'], [/chilli|chili|pepper|मिर्च/, '🌶️'], [/brinjal|eggplant|baingan|बैंगन/, '🍆'], [/sugarcane|ganna|गन्ना/, '🎋'], [/banana|केला/, '🍌'], [/mango|आम/, '🥭'], [/soy|mustard|sarson|सरसों|सोयाबीन/, '🌼'], [/cotton|कपास/, '☁️'], [/carrot|gajar|गाजर/, '🥕'], [/pea|matar|मटर|gram|chana|चना/, '🫛']];
+  const hit = map.find(([re]) => re.test(n));
+  return hit ? hit[1] : '🌱';
+};
+
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap');
@@ -97,6 +112,7 @@ export default function AgriGuruApp() {
   const [showPlotModal, setShowPlotModal] = useState(false);
   const [showCropModal, setShowCropModal] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [cropToDelete, setCropToDelete] = useState(null);
   const [onboardProfile, setOnboardProfile] = useState({ name: '', language: 'en', state: '', district: '', village: '', pincode: '' });
   const [onboardFarm, setOnboardFarm] = useState({ name: '', area: '', unit: 'acres', soil: 'Alluvial (Loam)', irrigation: 'Tube well' });
   const [locationStatus, setLocationStatus] = useState({ loading: false, message: '' });
@@ -339,6 +355,12 @@ export default function AgriGuruApp() {
     setTasks(tasks.map(t => t.id === taskId ? { ...t, status: t.status === 'Completed' ? 'Pending' : 'Completed' } : t));
   };
 
+  const handleDeleteCrop = (cropId) => {
+    setCrops(crops.filter(c => c.id !== cropId));
+    setTasks(tasks.filter(tk => tk.cropId !== cropId));
+    setCropToDelete(null);
+  };
+
   const handleResetApp = () => {
     localStorage.clear();
     setPlots([]); setCrops([]); setTasks([]); setLogs([]); setWeatherData(null);
@@ -568,18 +590,19 @@ export default function AgriGuruApp() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {crops.map((crop) => {
+                    {crops.map((crop, ci) => {
                       const age = getCropAge(crop.sowingDate);
                       const progressPercent = Math.min(100, Math.round((age / (crop.durationDays || 120)) * 100));
                       return (
-                        <div key={crop.id} className={`bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-3 ${lift}`}>
+                        <div key={crop.id} className={`relative overflow-hidden bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-3 ${lift}`}>
+                          <div className={`absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b ${CROP_THEMES[ci % CROP_THEMES.length].grad}`} />
                           <div className="flex justify-between items-start">
                             <div>
                               <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">{crop.plotName}</span>
-                              <h4 className="text-xl font-bold text-stone-900 mt-1.5">{crop.cropName}</h4>
+                              <h4 className="text-xl font-bold text-stone-900 mt-1.5"><span className="mr-1.5">{cropEmoji(crop.cropName)}</span>{crop.cropName}</h4>
                               <p className="text-xs text-stone-600">Variety: {crop.variety || 'N/A'}</p>
                             </div>
-                            <span className="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">{txt.cropAge}: {age} {txt.days}</span>
+                            <div className="flex items-center space-x-2"><span className="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">{txt.cropAge}: {age} {txt.days}</span><button onClick={() => setCropToDelete(crop)} title="Remove crop" className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition active:scale-90"><Trash2 className="w-4 h-4" /></button></div>
                           </div>
                           <div className="flex items-center space-x-3">
                             <div className="flex-1 bg-stone-100 h-3 rounded-full overflow-hidden">
@@ -642,19 +665,47 @@ export default function AgriGuruApp() {
 
         {activeTab === 'seeds' && (
           <div className="space-y-6 animate-fadeIn">
-            <h2 className="text-2xl font-bold text-stone-900">Seed & Input Inventory</h2>
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-stone-900">Seed & Input Inventory</h2>
+                <p className="text-xs text-stone-500">{crops.length} {crops.length === 1 ? 'crop' : 'crops'} sown. Use the bin icon on a card to remove one.</p>
+              </div>
+              <button onClick={() => setShowCropModal(true)} className="bg-amber-400 hover:bg-amber-300 text-stone-900 font-bold px-5 py-2.5 rounded-xl text-sm shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex items-center space-x-2 group">
+                <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" /><span>{txt.recordSowing}</span>
+              </button>
+            </div>
             {crops.length === 0 ? (
-              <div className={emptyBox}><p className="text-stone-500 text-sm">{txt.noCropsYet}</p></div>
+              <div className={`${emptyBox} space-y-3`}>
+                <div className="w-14 h-14 mx-auto rounded-full bg-amber-100 flex items-center justify-center text-3xl">🌱</div>
+                <p className="text-stone-600 font-semibold">{txt.noCropsYet}</p>
+                <button onClick={() => setShowCropModal(true)} className={`${btnPrimary} px-5 py-2.5 text-xs`}>{txt.addFirstCrop}</button>
+              </div>
             ) : (
-              <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-emerald-900 text-emerald-50 text-xs font-semibold">
-                    <tr><th className="p-4">{txt.cropName}</th><th className="p-4">Variety</th><th className="p-4">{txt.sowingDate}</th></tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone-100">
-                    {crops.map((c) => (<tr key={c.id} className="hover:bg-emerald-50/70 transition-colors"><td className="p-4 font-semibold">{c.cropName}</td><td className="p-4">{c.variety || 'N/A'}</td><td className="p-4">{c.sowingDate}</td></tr>))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {crops.map((c, i) => {
+                  const th = CROP_THEMES[i % CROP_THEMES.length];
+                  return (
+                    <div key={c.id} className={`relative overflow-hidden rounded-2xl border ${th.border} ${th.soft} p-5 ${lift}`}>
+                      <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${th.grad}`} />
+                      <div className="flex items-start justify-between pt-1">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${th.grad} flex items-center justify-center text-2xl shadow-md`}>{cropEmoji(c.cropName)}</div>
+                          <div>
+                            <h3 className="font-bold text-lg text-stone-900 leading-tight">{c.cropName}</h3>
+                            <p className="text-xs text-stone-600">Variety: {c.variety || 'N/A'}</p>
+                          </div>
+                        </div>
+                        <button onClick={() => setCropToDelete(c)} title="Remove crop" className="p-2 rounded-xl bg-white/80 text-red-500 hover:bg-red-500 hover:text-white shadow-sm transition active:scale-90"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+                        <div className="bg-white/80 rounded-xl p-2.5"><p className="text-stone-500">{txt.sowingDate}</p><p className="font-bold text-stone-900">{c.sowingDate}</p></div>
+                        <div className="bg-white/80 rounded-xl p-2.5"><p className="text-stone-500">{txt.expectedHarvest}</p><p className="font-bold text-stone-900">{c.expectedHarvest || 'N/A'}</p></div>
+                        <div className="bg-white/80 rounded-xl p-2.5"><p className="text-stone-500">{txt.plotName}</p><p className="font-bold text-stone-900 truncate">{c.plotName || 'General Field'}</p></div>
+                        <div className="bg-white/80 rounded-xl p-2.5"><p className="text-stone-500">{txt.cropAge}</p><p className="font-bold text-stone-900">{getCropAge(c.sowingDate)} {txt.days}</p></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -662,7 +713,12 @@ export default function AgriGuruApp() {
 
         {activeTab === 'calendar' && (
           <div className="space-y-6 animate-fadeIn">
-            <h2 className="text-2xl font-bold text-stone-900">Farming Calendar & Stages</h2>
+            <div className="flex flex-wrap justify-between items-center gap-4">
+              <h2 className="text-2xl font-bold text-stone-900">Farming Calendar & Stages</h2>
+              <button onClick={() => setShowCropModal(true)} className="bg-amber-400 hover:bg-amber-300 text-stone-900 font-bold px-5 py-2.5 rounded-xl text-sm shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex items-center space-x-2 group">
+                <Plus className="w-4 h-4 transition-transform group-hover:rotate-90" /><span>{txt.recordSowing}</span>
+              </button>
+            </div>
             {crops.length === 0 ? (
               <div className={emptyBox}><p className="text-stone-500 text-sm">{txt.noCropsYet}</p></div>
             ) : (
@@ -672,10 +728,12 @@ export default function AgriGuruApp() {
                     <div className="w-14 h-14 shrink-0 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white flex flex-col items-center justify-center shadow-md">
                       <span className="text-lg font-bold leading-none">{getCropAge(crop.sowingDate)}</span><span className="text-[10px] opacity-90">{txt.days}</span>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-lg text-stone-900">{crop.cropName}</h3>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-stone-900"><span className="mr-1.5">{cropEmoji(crop.cropName)}</span>{crop.cropName}</h3>
                       <p className="text-xs text-stone-500">Sowed on: {crop.sowingDate} | Age: {getCropAge(crop.sowingDate)} days</p>
+                      <p className="text-xs text-emerald-700 font-medium">{txt.expectedHarvest}: {crop.expectedHarvest || 'N/A'}</p>
                     </div>
+                    <button onClick={() => setCropToDelete(crop)} title="Remove crop" className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition active:scale-90"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 ))}
               </div>
@@ -881,10 +939,14 @@ export default function AgriGuruApp() {
             </div>
             <form onSubmit={handleAddCrop} className="p-6 space-y-4">
               <div><label className={labelCls}>{txt.cropName} *</label><input type="text" required value={newCrop.cropName} onChange={(e) => setNewCrop({ ...newCrop, cropName: e.target.value })} placeholder="e.g. Wheat, Rice, Tomato" className={inputCls} /></div>
+              {plots.length > 0 && (
+                <div><label className={labelCls}>{txt.plotName}</label><select value={newCrop.plotId || plots[0].id} onChange={(e) => setNewCrop({ ...newCrop, plotId: e.target.value })} className={inputCls}>{plots.map(pl => <option key={pl.id} value={pl.id}>{pl.name}</option>)}</select></div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div><label className={labelCls}>Variety</label><input type="text" value={newCrop.variety} onChange={(e) => setNewCrop({ ...newCrop, variety: e.target.value })} className={inputCls} /></div>
                 <div><label className={labelCls}>{txt.sowingDate} *</label><input type="date" required value={newCrop.sowingDate} onChange={(e) => setNewCrop({ ...newCrop, sowingDate: e.target.value })} className={inputCls} /></div>
               </div>
+              <div><label className={labelCls}>Days to harvest</label><input type="number" min="1" value={newCrop.durationDays} onChange={(e) => setNewCrop({ ...newCrop, durationDays: Number(e.target.value) })} className={inputCls} /></div>
               <div className="pt-4 flex justify-end space-x-3">
                 <button type="button" onClick={() => setShowCropModal(false)} className={`${btnGhost} px-4 py-2 text-sm`}>{txt.cancel}</button>
                 <button type="submit" className={`${btnPrimary} px-6 py-2 text-sm`}>{txt.save}</button>
@@ -903,6 +965,20 @@ export default function AgriGuruApp() {
             <div className="flex justify-center space-x-3 pt-2">
               <button onClick={() => setShowResetConfirm(false)} className={`${btnGhost} px-4 py-2 text-sm`}>{txt.cancel}</button>
               <button onClick={handleResetApp} className="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95">Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cropToDelete && (
+        <div className="fixed inset-0 bg-emerald-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="ag-pop bg-white w-full max-w-md rounded-3xl p-6 space-y-4 text-center shadow-2xl">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto text-3xl">{cropEmoji(cropToDelete.cropName)}</div>
+            <h3 className="font-bold text-lg text-stone-900">Remove {cropToDelete.cropName}?</h3>
+            <p className="text-xs text-stone-600">This removes the crop and its scheduled tasks. Your activity log keeps the sowing record.</p>
+            <div className="flex justify-center space-x-3 pt-2">
+              <button onClick={() => setCropToDelete(null)} className={`${btnGhost} px-4 py-2 text-sm`}>{txt.cancel}</button>
+              <button onClick={() => handleDeleteCrop(cropToDelete.id)} className="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95 flex items-center space-x-1.5"><Trash2 className="w-4 h-4" /><span>Remove crop</span></button>
             </div>
           </div>
         </div>
