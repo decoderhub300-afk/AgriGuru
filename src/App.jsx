@@ -6,7 +6,7 @@ import {
   Search, FileText, Check, X, ArrowUpRight, Compass, Heart, 
   Layers, Package, Award, Sparkles, AlertCircle, PhoneCall, HelpCircle,
   Navigation, User, CheckCircle, RotateCcw, Send, Image as ImageIcon,
-  Lightbulb, MessageSquare
+  Lightbulb, MessageSquare , Mic, MicOff
 } from 'lucide-react';
 
 const t = {
@@ -248,7 +248,8 @@ export default function AgriGuruApp() {
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
-
+  
+  const [isRecording, setIsRecording] = useState(false); // <-- ADD THIS LINE
   // Quick preset questions for easy typing on mobile or desktop
   const quickQuestions = [
     "How to manage yellowing leaves on Wheat?",
@@ -256,7 +257,52 @@ export default function AgriGuruApp() {
     "What causes seasons on Earth?",
     "Explain photosynthesis in simple terms"
   ];
+    const toggleRecording = () => {
+    // Check if browser supports Speech Recognition
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
 
+    if (isRecording) {
+      // Stop recording
+      if (window.recognitionInstance) {
+        window.recognitionInstance.stop();
+      }
+      setIsRecording(false);
+    } else {
+      // Start recording
+      const recognition = new SpeechRecognition();
+      recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-US'; // Auto-detects Hindi or English
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        // Append the spoken text to the current input
+        setChatInput((prev) => (prev ? prev + " " + transcript : transcript));
+        setIsRecording(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      window.recognitionInstance = recognition;
+      recognition.start();
+    }
+  };
   // ✅ FIXED AI FUNCTION: Correct syntax, no stray characters, uses Pollinations.ai
           const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
@@ -1385,7 +1431,7 @@ export default function AgriGuruApp() {
               )}
             </div>
 
-            {/* Input Box Component */}
+                        {/* Input Box Component */}
             <form 
               onSubmit={(e) => {
                 e.preventDefault();
@@ -1393,6 +1439,21 @@ export default function AgriGuruApp() {
               }}
               className="bg-white p-2.5 rounded-2xl border border-stone-300 shadow-md flex items-center space-x-2"
             >
+              {/* 🎤 VOICE INPUT BUTTON */}
+              <button
+                type="button"
+                onClick={toggleRecording}
+                className={`p-2.5 rounded-xl transition flex items-center justify-center font-bold ${
+                  isRecording 
+                    ? 'bg-red-500 text-white animate-pulse' 
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                }`}
+                title={isRecording ? "Stop Recording" : "Start Voice Input"}
+              >
+                {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+              </button>
+
+              {/* TEXT INPUT */}
               <input 
                 type="text"
                 value={chatInput}
@@ -1400,6 +1461,8 @@ export default function AgriGuruApp() {
                 placeholder={txt.typePrompt}
                 className="flex-1 bg-transparent px-3 py-2 text-sm text-stone-900 outline-none placeholder:text-stone-400"
               />
+
+              {/* SEND BUTTON */}
               <button
                 type="submit"
                 disabled={!chatInput.trim() || isAiLoading}
@@ -1408,9 +1471,6 @@ export default function AgriGuruApp() {
                 <Send className="w-4 h-4" />
               </button>
             </form>
-          </div>
-        )}
-
         {/* ========================================== */}
         {/* TAB: ACTIVITY LOGS                         */}
         {/* ========================================== */}
