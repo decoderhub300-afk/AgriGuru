@@ -156,7 +156,7 @@ export default function AgriGuruApp() {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: { 
-          "Authorization": `Bearer ${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}`, 
+          "Authorization": `Bearer ${apiKey}`, 
           "Content-Type": "application/json" 
         },
         body: JSON.stringify({
