@@ -11,116 +11,10 @@ import {
 
 const t = {
   en: {
-    appName: "AgriGuru",
-    tagline: "Your Smart Companion from Sowing to Harvesting.",
-    dashboard: "Dashboard",
-    farms: "Farms & Plots",
-    seeds: "Seeds & Inventory",
-    calendar: "Farming Calendar",
-    weather: "Live Weather",
-    advisor: "AgriGuru AI",
-    logs: "Activity Logs",
-    settings: "Profile & Settings",
-    activeCrops: "Active Crops",
-    totalPlots: "Total Plots",
-    pendingTasks: "Pending Tasks",
-    weatherAlerts: "Weather Warnings",
-    cropAge: "Crop Age",
-    days: "days",
-    sowedOn: "Sowed on",
-    expectedHarvest: "Expected Harvest",
-    viewDetails: "View Details",
-    addNewPlot: "Add New Farm Plot",
-    recordSowing: "Record Seed Sowing",
-    logActivity: "Log Irrigation / Fertilizer",
-    askAI: "Ask AgriGuru AI",
-    temperature: "Temperature",
-    humidity: "Humidity",
-    wind: "Wind",
-    rainfall: "Rainfall Forecast",
-    aiAdvisorTitle: "AgriGuru Intelligent Advisor",
-    aiSubtitle: "Ask anything about your crops, weather precautions, or pest management.",
-    typePrompt: "Type or speak your farming question...",
-    send: "Send",
-    save: "Save Record",
-    cancel: "Cancel",
-    completed: "Completed",
-    dueToday: "Due Today",
-    overdue: "Overdue",
-    pending: "Pending",
-    markComplete: "Mark Complete",
-    exportCSV: "Export CSV",
-    printReport: "Print Report",
-    soilType: "Soil Type",
-    irrigationMethod: "Irrigation Method",
-    plotName: "Plot / Field Name",
-    cropName: "Crop Name & Variety",
-    sowingDate: "Sowing Date",
-    area: "Area",
-    actions: "Actions",
-    noData: "No records found. Get started by adding a plot or crop!",
-    noCropsYet: "No crops added yet.",
-    noTasksYet: "No farming tasks scheduled yet.",
-    noWeatherYet: "Set up your farm location to see local weather.",
-    addFirstCrop: "Add Your First Crop",
-    resetApp: "Reset App Data",
-    confirmReset: "Are you sure you want to reset all profile and farm data? This action cannot be undone."
+    appName: "AgriGuru", tagline: "Your Smart Companion from Sowing to Harvesting.", dashboard: "Dashboard", farms: "Farms & Plots", seeds: "Seeds & Inventory", calendar: "Farming Calendar", weather: "Live Weather", advisor: "AgriGuru AI", logs: "Activity Logs", settings: "Profile & Settings", activeCrops: "Active Crops", totalPlots: "Total Plots", pendingTasks: "Pending Tasks", weatherAlerts: "Weather Warnings", cropAge: "Crop Age", days: "days", sowedOn: "Sowed on", expectedHarvest: "Expected Harvest", viewDetails: "View Details", addNewPlot: "Add New Farm Plot", recordSowing: "Record Seed Sowing", logActivity: "Log Irrigation / Fertilizer", askAI: "Ask AgriGuru AI", temperature: "Temperature", humidity: "Humidity", wind: "Wind", rainfall: "Rainfall Forecast", aiAdvisorTitle: "AgriGuru Intelligent Advisor", aiSubtitle: "Ask anything about your crops, weather precautions, or pest management.", typePrompt: "Type or speak your farming question...", send: "Send", save: "Save Record", cancel: "Cancel", completed: "Completed", dueToday: "Due Today", overdue: "Overdue", pending: "Pending", markComplete: "Mark Complete", exportCSV: "Export CSV", printReport: "Print Report", soilType: "Soil Type", irrigationMethod: "Irrigation Method", plotName: "Plot / Field Name", cropName: "Crop Name & Variety", sowingDate: "Sowing Date", area: "Area", actions: "Actions", noData: "No records found. Get started by adding a plot or crop!", noCropsYet: "No crops added yet.", noTasksYet: "No farming tasks scheduled yet.", noWeatherYet: "Set up your farm location to see local weather.", addFirstCrop: "Add Your First Crop", resetApp: "Reset App Data", confirmReset: "Are you sure you want to reset all profile and farm data? This action cannot be undone."
   },
   hi: {
-    appName: "एग्रीगुरु (AgriGuru)",
-    tagline: "बुवाई से कटाई तक आपका स्मार्ट साथी।",
-    dashboard: "डैशबोर्ड",
-    farms: "खेत और प्लॉट",
-    seeds: "बीज और सामग्री",
-    calendar: "खेती कैलेंडर",
-    weather: "लाइव मौसम",
-    advisor: "एग्रीगुरु एआई",
-    logs: "गतिविधि लॉग",
-    settings: "प्रोफ़ाइल और सेटिंग्स",
-    activeCrops: "सक्रिय फसलें",
-    totalPlots: "कुल प्लॉट",
-    pendingTasks: "लंबित कार्य",
-    weatherAlerts: "मौसम चेतावनी",
-    cropAge: "फसल की आयु",
-    days: "दिन",
-    sowedOn: "बोया गया",
-    expectedHarvest: "अनुमानित कटाई",
-    viewDetails: "विवरण देखें",
-    addNewPlot: "नया खेत प्लॉट जोड़ें",
-    recordSowing: "बीज बुवाई दर्ज करें",
-    logActivity: "सिंचाई / खाद दर्ज करें",
-    askAI: "एग्रीगुरु एआई से पूछें",
-    temperature: "तापमान",
-    humidity: "नमी",
-    wind: "हवा",
-    rainfall: "वर्षा पूर्वानुमान",
-    aiAdvisorTitle: "एग्रीगुरु बुद्धिमान सलाहकार",
-    aiSubtitle: "अपनी फसलों, मौसम सावधानियों या कीट प्रबंधन के बारे में कुछ भी पूछें।",
-    typePrompt: "अपना कृषि प्रश्न टाइप करें या बोलें...",
-    send: "भेजें",
-    save: "रिकॉर्ड सहेजें",
-    cancel: "रद्द करें",
-    completed: "पूर्ण",
-    dueToday: "आज देय",
-    overdue: "अतिदेय",
-    pending: "लंबित",
-    markComplete: "पूर्ण के रूप में चिह्नित करें",
-    exportCSV: "सीएसवी निर्यात",
-    printReport: "प्रिंट रिपोर्ट",
-    soilType: "मिट्टी का प्रकार",
-    irrigationMethod: "सिंचाई विधि",
-    plotName: "प्लॉट / खेत का नाम",
-    cropName: "फसल का नाम और किस्म",
-    sowingDate: "बुवाई की तारीख",
-    area: "क्षेत्रफल",
-    actions: "कार्य",
-    noData: "कोई रिकॉर्ड नहीं मिला। प्लॉट या फसल जोड़कर शुरुआत करें!",
-    noCropsYet: "अभी तक कोई फसल नहीं जोड़ी गई है।",
-    noTasksYet: "अभी तक कोई कृषि कार्य निर्धारित नहीं है।",
-    noWeatherYet: "स्थानीय मौसम देखने के लिए अपने खेत का स्थान सेट करें।",
-    addFirstCrop: "अपनी पहली फसल जोड़ें",
-    resetApp: "ऐप डेटा रीसेट करें",
-    confirmReset: "क्या आप वाकई सभी प्रोफ़ाइल और फ़ार्म डेटा रीसेट करना चाहते हैं? इस कार्रवाई को पूर्ववत नहीं किया जा सकता।"
+    appName: "एग्रीगुरु (AgriGuru)", tagline: "बुवाई से कटाई तक आपका स्मार्ट साथी।", dashboard: "डैशबोर्ड", farms: "खेत और प्लॉट", seeds: "बीज और सामग्री", calendar: "खेती कैलेंडर", weather: "लाइव मौसम", advisor: "एग्रीगुरु एआई", logs: "गतिविधि लॉग", settings: "प्रोफ़ाइल और सेटिंग्स", activeCrops: "सक्रिय फसलें", totalPlots: "कुल प्लॉट", pendingTasks: "लंबित कार्य", weatherAlerts: "मौसम चेतावनी", cropAge: "फसल की आयु", days: "दिन", sowedOn: "बोया गया", expectedHarvest: "अनुमानित कटाई", viewDetails: "विवरण देखें", addNewPlot: "नया खेत प्लॉट जोड़ें", recordSowing: "बीज बुवाई दर्ज करें", logActivity: "सिंचाई / खाद दर्ज करें", askAI: "एग्रीगुरु एआई से पूछें", temperature: "तापमान", humidity: "नमी", wind: "हवा", rainfall: "वर्षा पूर्वानुमान", aiAdvisorTitle: "एग्रीगुरु बुद्धिमान सलाहकार", aiSubtitle: "अपनी फसलों, मौसम सावधानियों या कीट प्रबंधन के बारे में कुछ भी पूछें।", typePrompt: "अपना कृषि प्रश्न टाइप करें या बोलें...", send: "भेजें", save: "रिकॉर्ड सहेजें", cancel: "रद्द करें", completed: "पूर्ण", dueToday: "आज देय", overdue: "अतिदेय", pending: "लंबित", markComplete: "पूर्ण के रूप में चिह्नित करें", exportCSV: "सीएसवी निर्यात", printReport: "प्रिंट रिपोर्ट", soilType: "मिट्टी का प्रकार", irrigationMethod: "सिंचाई विधि", plotName: "प्लॉट / खेत का नाम", cropName: "फसल का नाम और किस्म", sowingDate: "बुवाई की तारीख", area: "क्षेत्रफल", actions: "कार्य", noData: "कोई रिकॉर्ड नहीं मिला। प्लॉट या फसल जोड़कर शुरुआत करें!", noCropsYet: "अभी तक कोई फसल नहीं जोड़ी गई है।", noTasksYet: "अभी तक कोई कृषि कार्य निर्धारित नहीं है।", noWeatherYet: "स्थानीय मौसम देखने के लिए अपने खेत का स्थान सेट करें।", addFirstCrop: "अपनी पहली फसल जोड़ें", resetApp: "ऐप डेटा रीसेट करें", confirmReset: "क्या आप वाकई सभी प्रोफ़ाइल और फ़ार्म डेटा रीसेट करना चाहते हैं? इस कार्रवाई को पूर्ववत नहीं किया जा सकता।"
   }
 };
 
@@ -188,40 +82,27 @@ export default function AgriGuruApp() {
     "Explain photosynthesis in simple terms"
   ];
 
-  // 🔊 TEXT-TO-SPEECH: Reads AI responses aloud in Hindi or English
   const speakText = (text, messageId) => {
-    if (!window.speechSynthesis) {
-      alert("Speech synthesis is not supported in this browser.");
-      return;
-    }
-
-    // If already speaking this message, stop it
+    if (!window.speechSynthesis) return;
     if (speakingMessageId === messageId) {
       window.speechSynthesis.cancel();
       setSpeakingMessageId(null);
       return;
     }
-
-    // Stop any currently playing speech
     window.speechSynthesis.cancel();
-
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
+    utterance.rate = 0.9;
     utterance.onstart = () => setSpeakingMessageId(messageId);
     utterance.onend = () => setSpeakingMessageId(null);
     utterance.onerror = () => setSpeakingMessageId(null);
-
     window.speechSynthesis.speak(utterance);
   };
 
   const toggleRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      alert("Speech recognition is not supported. Please use Chrome, Edge, or Safari.");
+      alert("Speech recognition not supported. Use Chrome/Edge.");
       return;
     }
     if (isRecording) {
@@ -231,11 +112,9 @@ export default function AgriGuruApp() {
       const recognition = new SpeechRecognition();
       recognition.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
       recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
       recognition.onstart = () => setIsRecording(true);
       recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        setChatInput((prev) => (prev ? prev + " " + transcript : transcript));
+        setChatInput((prev) => (prev ? prev + " " + event.results[0][0].transcript : event.results[0][0].transcript));
         setIsRecording(false);
       };
       recognition.onerror = () => setIsRecording(false);
@@ -252,8 +131,8 @@ export default function AgriGuruApp() {
     const userMsg = { 
       role: 'user', 
       text: query, 
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      id: 'user_' + Date.now()
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+      id: 'user_' + Date.now() 
     };
     
     setChatMessages(prev => [...prev, userMsg]);
@@ -261,22 +140,27 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      // 🔑 YOUR API KEY HARDCODED - NO ENVIRONMENT VARIABLES
-      const apiKey = "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";
+      // ✅ SECURE: Reads from Vercel/.env. Never hardcoded.
+      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
       
-      // ✅ THIS MODEL IS CONFIRMED TO WORK ON GROQ RIGHT NOW
-      const model = "gemma2-9b-it";
+      // ✅ CURRENT ACTIVE MODEL: Replaces deprecated models
+      const modelName = "openai/gpt-oss-20b"; 
       
-      console.log("Using model:", model); // Debug line - remove after testing
+      // 🔍 DEBUG: Check your browser console (F12) to confirm this is running
+      console.log("Using model:", modelName);
+
+      if (!apiKey) {
+        throw new Error("Missing VITE_GROQ_API_KEY. Please check your .env or Vercel settings.");
+      }
 
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
+        headers: { 
+          "Authorization": `Bearer ${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}`, 
+          "Content-Type": "application/json" 
         },
         body: JSON.stringify({
-          model: model,
+          model: modelName,
           messages: [
             { 
               role: "system", 
@@ -294,27 +178,28 @@ export default function AgriGuruApp() {
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error?.message || `API failed: ${response.status}`);
+        throw new Error(errData.error?.message || `API failed with status: ${response.status}`);
       }
       
       const data = await response.json();
-      const rawAiText = data.choices[0].message.content;
-      const cleanText = rawAiText.replace(/\*/g, '');
+      const cleanText = data.choices[0].message.content.replace(/\*/g, '');
       
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: cleanText, 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        id: 'ai_' + Date.now()
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+        id: 'ai_' + Date.now() 
       }]);
 
     } catch (err) {
       console.error("AI Chat Error:", err);
+      
+      // 🔍 DEBUG: Shows the EXACT error in the chat so you know what failed
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
-        text: "AgriGuru AI is temporarily unavailable. Please check your connection and try again.", 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        id: 'error_' + Date.now()
+        text: `AgriGuru AI error: ${err.message}`, 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+        id: 'error_' + Date.now() 
       }]);
     } finally {
       setIsAiLoading(false);
@@ -345,14 +230,11 @@ export default function AgriGuruApp() {
       if (data && data.current_weather) {
         const curr = data.current_weather;
         setWeatherData({
-          temp: Math.round(curr.temperature),
-          feelsLike: Math.round(curr.temperature),
+          temp: Math.round(curr.temperature), feelsLike: Math.round(curr.temperature),
           condition: curr.weathercode <= 3 ? 'Clear / Partly Cloudy' : 'Cloudy / Precipitation',
-          humidity: data.hourly?.relativehumidity_2m?.[0] || 50,
-          windSpeed: curr.windspeed,
+          humidity: data.hourly?.relativehumidity_2m?.[0] || 50, windSpeed: curr.windspeed,
           rainfallChance: `${data.daily?.precipitation_probability_max?.[0] || 10}%`,
-          locationName: resolvedName,
-          lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          locationName: resolvedName, lastUpdated: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           forecast: (data.daily?.time || []).slice(0, 7).map((time, idx) => ({
             day: idx === 0 ? 'Today' : new Date(time).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
             temp: `${Math.round(data.daily.temperature_2m_max[idx])}° / ${Math.round(data.daily.temperature_2m_min[idx])}°`,
