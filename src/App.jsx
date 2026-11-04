@@ -6,7 +6,7 @@ import {
   Search, FileText, Check, X, ArrowUpRight, Compass, Heart, 
   Layers, Package, Award, Sparkles, AlertCircle, PhoneCall, HelpCircle,
   Navigation, User, CheckCircle, RotateCcw, Send, Image as ImageIcon,
-  Lightbulb, MessageSquare, Mic, MicOff
+  Lightbulb, MessageSquare, Mic, MicOff, Volume2, VolumeX
 } from 'lucide-react';
 
 const t = {
@@ -130,6 +130,7 @@ export default function AgriGuruApp() {
   const [lang, setLang] = useState('en');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isRecording, setIsRecording] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState(null);
 
   const [farmerProfile, setFarmerProfile] = useState(() => {
     const saved = localStorage.getItem('agriguru_farmer_profile');
@@ -176,7 +177,7 @@ export default function AgriGuruApp() {
   const [locationStatus, setLocationStatus] = useState({ loading: false, message: '' });
   const [newPlot, setNewPlot] = useState({ name: '', area: '', unit: 'acres', soil: 'Alluvial (Loam)', irrigation: 'Tube well' });
   const [newCrop, setNewCrop] = useState({ plotId: '', cropName: '', variety: '', supplier: '', sowingDate: new Date().toISOString().split('T')[0], areaUsed: 1, durationDays: 120 });
-  const [chatMessages, setChatMessages] = useState([{ role: 'assistant', text: 'Namaste! I am your AgriGuru AI Advisor. Ask me anything about farming!', time: 'Just now' }]);
+  const [chatMessages, setChatMessages] = useState([{ role: 'assistant', text: 'Namaste! I am your AgriGuru AI Advisor. Ask me anything about farming!', time: 'Just now', id: 'initial' }]);
   const [chatInput, setChatInput] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -186,6 +187,36 @@ export default function AgriGuruApp() {
     "What causes seasons on Earth?",
     "Explain photosynthesis in simple terms"
   ];
+
+  // 🔊 TEXT-TO-SPEECH: Reads AI responses aloud in Hindi or English
+  const speakText = (text, messageId) => {
+    if (!window.speechSynthesis) {
+      alert("Speech synthesis is not supported in this browser.");
+      return;
+    }
+
+    // If already speaking this message, stop it
+    if (speakingMessageId === messageId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMessageId(null);
+      return;
+    }
+
+    // Stop any currently playing speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'hi' ? 'hi-IN' : 'en-US';
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    utterance.onstart = () => setSpeakingMessageId(messageId);
+    utterance.onend = () => setSpeakingMessageId(null);
+    utterance.onerror = () => setSpeakingMessageId(null);
+
+    window.speechSynthesis.speak(utterance);
+  };
 
   const toggleRecording = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -214,14 +245,15 @@ export default function AgriGuruApp() {
     }
   };
 
-    const handleSendMessage = async (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
     const userMsg = { 
       role: 'user', 
       text: query, 
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      id: 'user_' + Date.now()
     };
     
     setChatMessages(prev => [...prev, userMsg]);
@@ -229,15 +261,20 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
+      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+
+      if (!apiKey) {
+        throw new Error("API key is missing. Please check your .env file or Vercel settings.");
+      }
+
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": "Bearer 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",
+          "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          // ✅ UPDATED TO GROQ'S MOST RELIABLE, ACTIVE MODEL
-          model: "openai/gpt-oss-20b",   // or "openai/gpt-oss-120b" for stronger answers 
+          model: "llama-3.3-70b-versatile",
           messages: [
             { 
               role: "system", 
@@ -265,7 +302,8 @@ export default function AgriGuruApp() {
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: cleanText, 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        id: 'ai_' + Date.now()
       }]);
 
     } catch (err) {
@@ -273,12 +311,14 @@ export default function AgriGuruApp() {
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: "AgriGuru AI is temporarily unavailable. Please check your connection and try again.", 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        id: 'error_' + Date.now()
       }]);
     } finally {
       setIsAiLoading(false);
     }
   };
+
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
@@ -795,7 +835,18 @@ export default function AgriGuruApp() {
                     </div>
                     <div className={`p-4 rounded-2xl text-sm space-y-2 shadow-sm ${msg.role === 'user' ? 'bg-emerald-800 text-white rounded-tr-none' : 'bg-stone-100 text-stone-800 rounded-tl-none border border-stone-200'}`}>
                       <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
-                      <span className={`text-[10px] block text-right ${msg.role === 'user' ? 'text-emerald-200' : 'text-stone-400'}`}>{msg.time}</span>
+                      <div className="flex items-center justify-between pt-2">
+                        <span className={`text-[10px] ${msg.role === 'user' ? 'text-emerald-200' : 'text-stone-400'}`}>{msg.time}</span>
+                        {msg.role === 'assistant' && (
+                          <button
+                            onClick={() => speakText(msg.text, msg.id)}
+                            className={`p-1.5 rounded-lg transition ${speakingMessageId === msg.id ? 'bg-emerald-600 text-white' : 'bg-stone-200 text-stone-600 hover:bg-stone-300'}`}
+                            title={speakingMessageId === msg.id ? "Stop Speaking" : "Read Aloud"}
+                          >
+                            {speakingMessageId === msg.id ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
