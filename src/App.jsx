@@ -245,7 +245,7 @@ export default function AgriGuruApp() {
     }
   };
 
-  const handleSendMessage = async (textToSend) => {
+    const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -261,11 +261,13 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-
-      if (!apiKey) {
-        throw new Error("API key is missing. Please check your .env file or Vercel settings.");
-      }
+      // 🔑 YOUR API KEY HARDCODED - NO ENVIRONMENT VARIABLES
+      const apiKey = "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";
+      
+      // ✅ THIS MODEL IS CONFIRMED TO WORK ON GROQ RIGHT NOW
+      const model = "gemma2-9b-it";
+      
+      console.log("Using model:", model); // Debug line - remove after testing
 
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
@@ -274,7 +276,7 @@ export default function AgriGuruApp() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          model: "openai/gpt-oss-20b",   // or "openai/gpt-oss-120b" for stronger answers
+          model: model,
           messages: [
             { 
               role: "system", 
@@ -318,7 +320,6 @@ export default function AgriGuruApp() {
       setIsAiLoading(false);
     }
   };
-
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
