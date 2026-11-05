@@ -984,7 +984,10 @@ export default function AgriGuruApp() {
         </div>
       )}
 
-            <footer className="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-center text-xs space-y-1">
+                  <footer className="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-center text-xs space-y-1">
         <p>© 2026 AgriGuru Smart Farming App. Designed for Indian Farmers.</p>
         <p className="text-stone-500 mt-1">Made by Adarsh and Saksham</p>
       </footer>
+    </div>
+  );
+}
