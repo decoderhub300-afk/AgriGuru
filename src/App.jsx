@@ -171,7 +171,7 @@ export default function AgriGuruApp() {
     }
   };
 
-    const handleSendMessage = async (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const query = textToSend || chatInput;
     if (!query.trim() || isAiLoading) return;
 
@@ -187,13 +187,11 @@ export default function AgriGuruApp() {
     setIsAiLoading(true);
 
     try {
-      // ✅ SECURE: Reads from Vercel/.env. Never hardcoded.
+      // Reads the key from Vercel / .env. Never hardcoded.
       const apiKey = import.meta.env.VITE_GROQ_API_KEY;
       
-      // ✅ CURRENT ACTIVE MODEL: Replaces deprecated models
       const modelName = "openai/gpt-oss-20b"; 
       
-      // 🔍 DEBUG: Check your browser console (F12) to confirm this is running
       console.log("Using model:", modelName);
 
       if (!apiKey) {
@@ -241,7 +239,6 @@ export default function AgriGuruApp() {
     } catch (err) {
       console.error("AI Chat Error:", err);
       
-      // 🔍 DEBUG: Shows the EXACT error in the chat so you know what failed
       setChatMessages(prev => [...prev, { 
         role: 'assistant', 
         text: `AgriGuru AI error: ${err.message}`, 
@@ -252,6 +249,7 @@ export default function AgriGuruApp() {
       setIsAiLoading(false);
     }
   };
+
   const txt = t[lang];
 
   const fetchWeatherForLocation = async (latitude, longitude, locName) => {
@@ -983,8 +981,6 @@ export default function AgriGuruApp() {
           </div>
         </div>
       )}
-
-            )}
 
       <footer className="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-center text-xs space-y-1">
         <p>© 2026 AgriGuru Smart Farming App. Designed for Indian Farmers.</p>
